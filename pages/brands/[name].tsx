@@ -86,12 +86,12 @@ export default function Brands({brand, vapes, error}: InferGetServerSidePropsTyp
                 <div className="mx-auto max-w-screen-xl px-4 py-8 sm:py-16 lg:px-6">
                     {error ? (
                         <div
-                            className="justify-center space-y-8 md:grid md:grid-cols-2 md:gap-12 md:space-y-0 lg:grid-cols-4">
+                            className="justify-center space-y-8">
                             No Vapes Found
                         </div>
                     ) : (
                         <div
-                            className="justify-center space-y-8 md:grid md:grid-cols-2 md:gap-12 md:space-y-0 lg:grid-cols-4">
+                            className="justify-center space-y-8 md:grid md:grid-cols-2 md:gap-12 md:space-y-0 lg:grid-cols-3">
                             {vapes && vapes.map((singleItem, index) => (
                                 <ProductCards key={index} {...singleItem} />
                             ))}

@@ -1,42 +1,10 @@
-import {Badge, Button, Card, Center, createStyles, Group, Image, rem, Text} from '@mantine/core';
 import {IconAspectRatio, IconBattery4, IconCpu} from '@tabler/icons-react';
+import {capitalize} from "lodash";
+import Image from "next/image";
 import React, {useState} from "react";
 import {Vape} from "../../api/types";
 
-const useStyles = createStyles((theme) => ({
-    card: {},
-    imageSection: {
-        padding: theme.spacing.md,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        borderBottom: `${rem(1)} solid ${
-            theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]
-        }`,
-    },
-    label: {
-        marginBottom: theme.spacing.xs,
-        lineHeight: 1,
-        fontWeight: 700,
-        fontSize: theme.fontSizes.xs,
-        letterSpacing: rem(-0.25),
-        textTransform: 'uppercase',
-    },
-    section: {
-        padding: theme.spacing.md,
-        borderTop: `${rem(1)} solid ${
-            theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[3]
-        }`,
-    },
-    icon: {
-        marginRight: rem(5),
-        color: theme.colorScheme === 'dark' ? theme.colors.dark[2] : theme.colors.gray[5],
-    },
-    button: {}
-}));
-
-export function ProductCards({name, known_as, brand, type, basic_infos, price}: Vape) {
-    const {classes} = useStyles();
+export function ProductCards({name, known_as, brand, type, images, basic_infos, price}: Vape) {
     const [vapeID, setVapeID] = useState(0);
 
     console.log(vapeID, setVapeID)
@@ -46,75 +14,77 @@ export function ProductCards({name, known_as, brand, type, basic_infos, price}: 
         switch (type) {
             case "processor":
                 return (
-                    <Center key={info.label}>
-                        <IconCpu size="1.05rem" className={classes.icon} stroke={1.5}/>
-                        <Text fz="xs">{info.label}</Text>
-                    </Center>
+                    <div key={info.type} className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
+                        <IconCpu size="1.05rem" className="h-4 w-4 text-indigo-700"
+                                 strokeLinecap="round"
+                                 strokeLinejoin="round"
+                                 stroke={2}/>
+
+                        <div className="mt-1.5 sm:mt-0">
+                            <p className="text-gray-500">{capitalize(info.type)}</p>
+                            <p className="font-medium">{info.label}</p>
+                        </div>
+                    </div>
                 );
             case "display":
                 return (
-                    <Center key={info.label}>
-                        <IconAspectRatio size="1.05rem" className={classes.icon} stroke={1.5}/>
-                        <Text fz="xs">{info.label}</Text>
-                    </Center>
+                    <div key={info.type} className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
+                        <IconAspectRatio size="1.05rem" className="h-4 w-4 text-indigo-700"
+                                         strokeLinecap="round"
+                                         strokeLinejoin="round"
+                                         stroke={2}/>
+
+                        <div className="mt-1.5 sm:mt-0">
+                            <p className="text-gray-500">{capitalize(info.type)}</p>
+                            <p className="font-medium">{info.label}</p>
+                        </div>
+                    </div>
                 );
             case "battery":
                 return (
-                    <Center key={info.label}>
-                        <IconBattery4 size="1.05rem" className={classes.icon} stroke={1.5}/>
-                        <Text fz="xs">{info.label}</Text>
-                    </Center>
+                    <div key={info.type} className="sm:inline-flex sm:shrink-0 sm:items-center sm:gap-2">
+                        <IconBattery4 size="1.05rem" className="h-4 w-4 text-indigo-700"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      stroke={2}/>
+
+                        <div className="mt-1.5 sm:mt-0">
+                            <p className="text-gray-500">{capitalize(info.type)}</p>
+                            <p className="font-medium">{info.label}</p>
+                        </div>
+                    </div>
                 );
         }
     });
 
     return (
-        <Card withBorder radius="md">
-            <Card.Section className={classes.imageSection}>
-                <Image src="https://i.imgur.com/ZL52Q2D.png" alt="Tesla Model S"/>
-            </Card.Section>
+        <a href="#" className="block rounded-lg p-4 shadow-sm shadow-indigo-100">
+            <Image
+                alt="Home"
+                src={images ? images[0] : "https://images.unsplash.com/photo-1613545325278-f24b0cae1224?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"}
+                className="h-56 w-full rounded-md object-cover"
+                width={1770}
+                height={1000}
+            />
 
-            <Group position="apart" mt="md">
-                <div>
-                    <Text fw={500}>{name}</Text>
-                    <Text fz="sm" c="dimmed" fw={500} sx={{lineHeight: 1}} mt={3}>
-                        {type}
-                    </Text>
-                    <Text fz="xs" c="dimmed">
-                        {known_as}
-                    </Text>
-                </div>
-                <Badge variant="outline">{brand}</Badge>
-            </Group>
+            <div className="mt-2">
+                <dl>
+                    <div>
+                        <dt className="sr-only">Known As</dt>
+                        <dd className="text-sm text-gray-500">{known_as}</dd>
+                    </div>
 
-            <Card.Section className={classes.section} mt="md">
-                <Text fz="sm" c="dimmed" className={classes.label}>
-                    Basic information
-                </Text>
+                    <div>
+                        <dt className="sr-only">Name</dt>
 
-                <Group spacing={8} mb={-8}>
+                        <dd className="font-medium">{name}</dd>
+                    </div>
+                </dl>
+
+                <div className="mt-6 flex items-center gap-8 text-xs">
                     {infos}
-                </Group>
-            </Card.Section>
-
-            <Card.Section className={classes.section}>
-                <Group spacing={20}>
-                    {price && (
-                        <div>
-                            <Text fz="xl" fw={700} sx={{lineHeight: 1}}>
-                                {price}
-                            </Text>
-                            <Text fz="sm" c="dimmed" fw={500} sx={{lineHeight: 1}} mt={3}>
-                                in average
-                            </Text>
-                        </div>
-                    )}
-
-                    <Button variant="light" radius="xl">
-                        Add to Compare
-                    </Button>
-                </Group>
-            </Card.Section>
-        </Card>
+                </div>
+            </div>
+        </a>
     );
 }

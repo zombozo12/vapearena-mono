@@ -1,14 +1,9 @@
 import "../styles/tailwind.css"
-
-import {Burger, Header, MediaQuery, Text, useMantineTheme} from "@mantine/core";
 import {AppProps} from "next/app"
 import Head from "next/head";
-import {useState} from "react";
+import {Navigation} from "../components/Navigation/Navigation";
 
 function MyApp({Component, pageProps}: AppProps) {
-    const theme = useMantineTheme();
-    const [opened, setOpened] = useState(false);
-
     return (
         <>
             <Head>
@@ -22,30 +17,11 @@ function MyApp({Component, pageProps}: AppProps) {
                 <meta name="twitter:card" content="summary_large_image"/>
                 <title>Next.js Enterprise Boilerplate</title>
             </Head>
-            <Header
-                height={{
-                    base: 50,
-                    md: 70
-                }}
-                p="md"
+            <header
+                className="bg-white"
             >
-                <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    height: "100%"
-                }}>
-                    <MediaQuery styles={{display: 'none'}} largerThan="sm">
-                        <Burger
-                            opened={opened}
-                            onClick={() => setOpened((o) => !o)}
-                            size="sm"
-                            color={theme.colors.gray[6]}
-                            mr="xl"
-                        />
-                    </MediaQuery>
-                    <Text>Header</Text>
-                </div>
-            </Header>
+                <Navigation is_logged_in={true}/>
+            </header>
             <Component {...pageProps} />
         </>
     )

@@ -32,6 +32,7 @@ export type Vape = {
     model: string,
     brand: string,
     type: string,
+    images: string[],
     known_as: string,
     description: string,
     basic_infos: VapeBasicInfo[],
