@@ -2,12 +2,10 @@ import { IconAspectRatio, IconBattery4, IconCpu } from "@tabler/icons-react"
 import { capitalize } from "lodash"
 import Image from "next/image"
 import React, { useState } from "react"
-import { Vape } from "../../api/types"
+import { VapeByBrandNameResponse } from "../../types/app-types"
 
-export function ProductCards({ name, known_as, brand, type, images, basic_infos, price }: Vape) {
+export function ProductCards({ name, known_as, brand, type, images, basic_infos }: VapeByBrandNameResponse) {
   const [vapeID, setVapeID] = useState(0)
-
-  console.log(vapeID, setVapeID)
 
   const infos = basic_infos.map((info) => {
     const type = info.type

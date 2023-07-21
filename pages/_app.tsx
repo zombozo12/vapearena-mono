@@ -3,7 +3,8 @@ import { AppProps } from "next/app"
 import Head from "next/head"
 import { Navigation } from "../components/Navigation/Navigation"
 
-function MyApp({ Component, pageProps }: AppProps) {
+function MyApp({ Component, pageProps: { ...pageProps }, router }: AppProps) {
+  const { pathname } = router
   return (
     <>
       <Head>
@@ -17,9 +18,11 @@ function MyApp({ Component, pageProps }: AppProps) {
         <meta name="twitter:card" content="summary_large_image" />
         <title>Next.js Enterprise Boilerplate</title>
       </Head>
-      <header className="bg-white">
-        <Navigation is_logged_in={true} />
-      </header>
+      {pathname !== "/auth/in" && pathname !== "/auth/up" && (
+        <header className="bg-white">
+          <Navigation is_logged_in={true} />
+        </header>
+      )}
       <Component {...pageProps} />
     </>
   )

@@ -3,7 +3,7 @@ import withPlugins from "next-compose-plugins"
 import {env} from "./env.mjs"
 
 /**
- * @type {import('next').NextConfig}
+ * @types {import('next').NextConfig}
  */
 const config = withPlugins([[withBundleAnalyzer({enabled: env.ANALYZE})]], {
     reactStrictMode: true,

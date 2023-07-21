@@ -1,12 +1,12 @@
 import { GetServerSideProps, InferGetServerSidePropsType } from "next"
 import React from "react"
-import { ResponseHandler } from "../../api/api"
-import { Brand, ErrorResponse, Vape } from "../../api/types"
 import { ProductCards } from "../../components/ProductCards/ProductCards"
+import { ResponseHandler } from "../../lib/api"
+import { Brand, ErrorResponse, VapeByBrandNameResponse } from "../../types/app-types"
 
 export const getServerSideProps: GetServerSideProps<{
   brand: Brand | null
-  vapes: Vape[] | null
+  vapes: VapeByBrandNameResponse[] | null
   error: ErrorResponse | null
 }> = async ({ params }) => {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -65,8 +65,6 @@ export const getServerSideProps: GetServerSideProps<{
 }
 
 export default function Brands({ brand, vapes, error }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  console.log(brand, vapes, error)
-
   return (
     <>
       <section className="w-full bg-white dark:bg-gray-900">

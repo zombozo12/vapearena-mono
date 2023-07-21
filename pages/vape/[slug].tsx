@@ -1,70 +1,232 @@
 import { Badge } from "@mantine/core"
+import { withIronSessionSsr } from "iron-session/next"
 import { sanitize } from "isomorphic-dompurify"
+import { snakeCase } from "lodash"
 import { marked } from "marked"
+import { InferGetServerSidePropsType } from "next"
+import Head from "next/head"
+import Image from "next/image"
+import Link from "next/link"
+import React from "react"
+import { ResponseHandler } from "../../lib/api"
+import { sessionOptions } from "../../lib/withSession"
+import { Battery, Cartridge, Display, ErrorResponse, Processor, Vape } from "../../types/app-types"
 
-export default function Index() {
-  const markdown = `
-Lorem markdownum, culmine mundum sic deprendi Amnis? Vos enim **tum volucer**
-parens, victrix; omnia aurum minitantem, traxit. Gravis [certare
-incursat](http://vixque.io/corporis) leves: **tum** illi ore iamiam quae ergo.
-Vitam Hector inpiger, sanguine acer, *est nihil inani*, suo iudicium rebus, non
-iam viros diu. Suasit erant metus.
+const getServerSideProps = withIronSessionSsr<{
+  vape: Vape | null
+  body: Body | null
+  processor: Processor | null
+  display: Display | null
+  cartridge: Cartridge | null
+  battery: Battery | null
+  error: ErrorResponse | null
+}>(async function ({ params }) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const { slug } = params
 
-Occiderat sua, et Troiana tactis me longum faciem vocat corvo funesta inpius
-Parnasosque fugato. Ab magna tantummodo tellus omnis abstitimus rigent
-Phaestiadas barbae: palmite quod nosces! Pinu induerat, clara sorte, candida
-iaculum; sed strictis sanguinis coniunx propinquos piasque.
+  let errorResponse: ErrorResponse
 
-Sedere qui processit stetit fratres pectora **querellae in fero**, est cum
-terrae ducis. Et ubi ferro, est erant ante adiit tantos relinquam Tisiphone ossa
-falsosque. In numina nescit tantumque Alpheias pressa subvolat, habere adpellare
-Typhoea arcem unum Minervam, agitatis. Amisit Clymeni caecis ausa **loquerentur
-feretro**, aut novae multorum. Sim per: omnes sic quam genitoris **adsueta**,
-rata ipsis me poena.
+  const vapeRes = await fetch(`http://127.0.0.1:8008/api/vape/s/${slug}`)
+  const vapeBody = await ResponseHandler(vapeRes)
+  if (vapeBody.is_error) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    errorResponse = vapeBody as ErrorResponse
+    return {
+      props: {
+        vape: null,
+        body: null,
+        processor: null,
+        display: null,
+        cartridge: null,
+        battery: null,
+        error: errorResponse,
+      },
+    }
+  }
 
-Si in alius nostris. Ita qui arma, laedi, occallescere propter massa mirer
-certamine. Multaque communes **quoque integer**, me vimina lapis quod orare,
-namque talia. Iactis facta qua Arcadiae, *nec* in annos cauda plectrumque in
-auras furibunda. Erit vigil sed, inpositaque lauro saxoque vertice di invadere
-aethera sit, agna *Phrygiae grave* habetur, sic trepidat.
+  const vape: Vape = vapeBody.data
 
-Nec ibat sed viribus solis acer nullumque modus et pretium terrae saltumque. Et
-atque.
+  const bodyRes = await fetch(`http://127.0.0.1:8008/api/body/vape/${vape.id}`)
+  const bodyBody = await ResponseHandler(bodyRes)
+  if (bodyBody.is_error) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    errorResponse = bodyBody
+    return {
+      props: {
+        vape: null,
+        body: null,
+        processor: null,
+        display: null,
+        cartridge: null,
+        battery: null,
+        error: errorResponse,
+      },
+    }
+  }
 
-Ite nos alta vidit eliso, fertilis hoc caper praesentia in vultus carina, artus.
-Sum hora quantusque sed, [in](http://spectasse.org/praepes) ipse, ne nec quas
-sequiturque fuit constituunt frondescere spumantiaque.`
+  const body: Body = bodyBody.data
 
-  const html = marked.parse(markdown)
+  const processorRes = await fetch(`http://127.0.0.1:8008/api/processor/vape/${vape.id}`)
+  const processorBody = await ResponseHandler(processorRes)
+  if (processorBody.is_error) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    errorResponse = processorBody
+    return {
+      props: {
+        vape: null,
+        body: null,
+        processor: null,
+        display: null,
+        cartridge: null,
+        battery: null,
+        error: errorResponse,
+      },
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const processor: Processor = processorBody.data
+
+  const displayRes = await fetch(`http://127.0.0.1:8008/api/display/vape/${vape.id}`)
+  const displayBody = await ResponseHandler(displayRes)
+  if (displayBody.is_error) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    errorResponse = displayBody
+    return {
+      props: {
+        vape: null,
+        body: null,
+        processor: null,
+        display: null,
+        cartridge: null,
+        battery: null,
+        error: errorResponse,
+      },
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const display: Display = displayBody.data
+
+  const cartridgeRes = await fetch(`http://127.0.0.1:8008/api/cartridge/vape/${vape.id}`)
+  const cartridgeBody = await ResponseHandler(cartridgeRes)
+  if (cartridgeBody.is_error) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    errorResponse = cartridgeBody
+    return {
+      props: {
+        vape: null,
+        body: null,
+        processor: null,
+        display: null,
+        cartridge: null,
+        battery: null,
+        error: errorResponse,
+      },
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const cartridge: Cartridge = cartridgeBody.data
+
+  const batteryRes = await fetch(`http://127.0.0.1:8008/api/battery/vape/${vape.id}`)
+  const batteryBody = await ResponseHandler(batteryRes)
+  if (batteryBody.is_error) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    errorResponse = batteryBody
+    return {
+      props: {
+        vape: null,
+        body: null,
+        processor: null,
+        display: null,
+        cartridge: null,
+        battery: null,
+        error: errorResponse,
+      },
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  const battery: Battery = batteryBody.data
+
+  return {
+    props: {
+      vape: vape,
+      body: body,
+      processor: processor,
+      display: display,
+      cartridge: cartridge,
+      battery: battery,
+      error: null,
+    },
+  }
+}, sessionOptions)
+
+export default function Slug({
+  vape,
+  body,
+  processor,
+  display,
+  cartridge,
+  battery,
+  error,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) {
+  if (error) {
+    return (
+      <>
+        <Head>
+          <title>404</title>
+        </Head>
+        <div className="flex h-screen items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-6xl font-semibold text-gray-800 dark:text-gray-200">404</h1>
+            <p className="text-gray-800 dark:text-gray-300">Page not found. Check the address or</p>
+            <Link href="/" className="text-blue-500 hover:underline dark:text-blue-400">
+              go to main page
+            </Link>
+          </div>
+        </div>
+      </>
+    )
+  }
+
+  const html = marked.parse(vape?.description || "")
   return (
     <>
       <section className="bg-blue-500 dark:bg-gray-900">
         <div className="mx-auto grid max-w-screen-xl px-4 py-8 lg:grid-cols-12 lg:gap-8 lg:py-16 xl:gap-0">
           <div className="mr-auto place-self-center lg:col-span-7">
             <h1 className="mb-4 max-w-2xl text-4xl font-bold leading-none tracking-tight text-white md:text-5xl xl:text-6xl">
-              product_name
+              {vape?.name}
             </h1>
             <p className="mb-6 max-w-2xl font-light text-white dark:text-gray-400 md:text-lg lg:mb-8 lg:text-xl">
-              From product_short_description
+              {vape?.brand}
             </p>
           </div>
           <div className="lg:col-span-5 lg:mt-0 lg:flex">
             <div className="stack">
-              <img
-                className="rounded shadow"
-                src="https://vape.com/cdn/shop/products/7Daze-Reds-x-Keep-It-100-30mL-Slapple-Iced_5000x.png?v=1671418636"
-                alt="mockup"
-              />
-              <img
-                className="rounded shadow"
-                src="https://vape.com/cdn/shop/products/7Daze-Reds-x-Keep-It-100-30mL-Slapple-Iced_5000x.png?v=1671418636"
-                alt="mockup"
-              />
-              <img
-                className="rounded shadow"
-                src="https://vape.com/cdn/shop/products/7Daze-Reds-x-Keep-It-100-30mL-Slapple-Iced_5000x.png?v=1671418636"
-                alt="mockup"
-              />
+              {vape?.images.map((image, index) => (
+                <Image
+                  key={"vape-image-" + index}
+                  className="rounded shadow"
+                  src={image}
+                  alt="mockup"
+                  width="500"
+                  height="500"
+                />
+              ))}
             </div>
           </div>
         </div>
@@ -75,7 +237,7 @@ sequiturque fuit constituunt frondescere spumantiaque.`
             <div className="bg-white px-5 py-3">
               <h2 className="mt-5 text-xl font-bold underline decoration-dashed">Description</h2>
               <article
-                className="prose-slate prose lg:max-w-full"
+                className="prose prose-slate lg:max-w-full"
                 dangerouslySetInnerHTML={{
                   __html: sanitize(html, {
                     RETURN_DOM: true,
@@ -86,7 +248,7 @@ sequiturque fuit constituunt frondescere spumantiaque.`
               <dl className="divide-y divide-gray-100">
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Brand</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">brand_name</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{vape?.brand}</dd>
                 </div>
               </dl>
               <h2 className="text-xl font-bold underline decoration-dashed">Release Date</h2>
@@ -102,65 +264,73 @@ sequiturque fuit constituunt frondescere spumantiaque.`
               <dl className="divide-y divide-gray-100">
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Name</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">name</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{body?.name}</dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Brand</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">brand_name</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{body?.brand}</dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Dimension</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">dimension</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                    {body?.dimension.x + " x " + body?.dimension.y + " x " + body?.dimension.z + " mm"}
+                  </dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Weight</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">weight</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                    {body?.weight.value + " " + body?.weight.unit}
+                  </dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Materials</dt>
                   <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                     <ul>
-                      <li>material 1</li>
-                      <li className="mt-1">material 2</li>
-                      <li className="mt-1">material 3</li>
+                      {body?.materials.map((material: string, index: number) => (
+                        <li key={"body-material-" + index} className="mt-1">
+                          {material}
+                        </li>
+                      ))}
                     </ul>
                   </dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Colors</dt>
                   <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                    <Badge className="mr-1" color="red" variant="dot">
-                      Red
-                    </Badge>
-                    <Badge className="mr-1" color="green" variant="dot">
-                      Green
-                    </Badge>
-                    <Badge className="mr-1" color="blue" variant="dot">
-                      Blue
-                    </Badge>
+                    {body?.colors.map((color: string, index: number) => (
+                      <Badge key={"body-color-" + index} className="mr-1" color={color} variant="dot">
+                        {snakeCase(color)}
+                      </Badge>
+                    ))}
                   </dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Buttons</dt>
                   <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                     <ul>
-                      <li>button 1</li>
-                      <li className="mt-1">button 2</li>
-                      <li className="mt-1">button 3</li>
+                      {body?.buttons.map((button: string, index: number) => (
+                        <li key={"body-button-" + index} className="mt-1">
+                          {button}
+                        </li>
+                      ))}
                     </ul>
                   </dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Airflow Control</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">airflow_control</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                    {body?.airflow_control ? "Yes" : "No"}
+                  </dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Connections</dt>
                   <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                     <ul>
-                      <li>connection 1</li>
-                      <li className="mt-1">connection 2</li>
-                      <li className="mt-1">connection 3</li>
+                      {body?.connections.map((connection: string, index: number) => (
+                        <li key={"body-connection-" + index} className="mt-1">
+                          {connection}
+                        </li>
+                      ))}
                     </ul>
                   </dd>
                 </div>
@@ -171,11 +341,11 @@ sequiturque fuit constituunt frondescere spumantiaque.`
               <dl className="divide-y divide-gray-100">
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Name</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">name</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{processor?.name}</dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Brand</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">brand_name</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{processor?.brand}</dd>
                 </div>
               </dl>
             </section>
@@ -184,39 +354,47 @@ sequiturque fuit constituunt frondescere spumantiaque.`
               <dl className="divide-y divide-gray-100">
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Name</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">name</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{battery?.name}</dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Brand</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">brand_name</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{battery?.brand}</dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Type</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">type</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{battery?.type}</dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Capacity</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">capacity</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{battery?.capacity}</dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Watt Range</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">min-max</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                    {battery?.watt_range.min + "-" + battery?.watt_range.max + " W"}
+                  </dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Power Output</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">min-max unit</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                    {battery?.power_output.min + "-" + battery?.power_output.max + battery?.power_output.unit}
+                  </dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Charge Time</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">charge_time</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                    {battery?.charge_time + " minutes"}
+                  </dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Charge Type</dt>
                   <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                     <ul>
-                      <li>A</li>
-                      <li className="mt-1">B</li>
-                      <li className="mt-1">C</li>
+                      {battery?.charge_type.map((charge_type, index) => (
+                        <li key={"battery-charge_type-" + index} className="mt-1">
+                          {charge_type}
+                        </li>
+                      ))}
                     </ul>
                   </dd>
                 </div>
@@ -224,9 +402,11 @@ sequiturque fuit constituunt frondescere spumantiaque.`
                   <dt className="text-sm font-medium leading-6 text-gray-900">Others</dt>
                   <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                     <ul>
-                      <li>A</li>
-                      <li className="mt-1">B</li>
-                      <li className="mt-1">C</li>
+                      {battery?.others.map((other, index) => (
+                        <li key={"battery-other-" + index} className="mt-1">
+                          {other}
+                        </li>
+                      ))}
                     </ul>
                   </dd>
                 </div>
@@ -237,29 +417,29 @@ sequiturque fuit constituunt frondescere spumantiaque.`
               <dl className="divide-y divide-gray-100">
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Type</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                    <ul>
-                      <li>A</li>
-                      <li className="mt-1">B</li>
-                      <li className="mt-1">C</li>
-                    </ul>
-                  </dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{display?.type}</dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Size</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">value unit</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                    {display?.size.value + " " + display?.size.unit}
+                  </dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Resolution</dt>
-                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">width x height</dd>
+                  <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                    {display?.resolution.width + " x " + display?.resolution.height}
+                  </dd>
                 </div>
                 <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                   <dt className="text-sm font-medium leading-6 text-gray-900">Protections</dt>
                   <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                     <ul>
-                      <li>A</li>
-                      <li className="mt-1">B</li>
-                      <li className="mt-1">C</li>
+                      {display?.protections.map((protection, index) => (
+                        <li key={"display-protection-" + index} className="mt-1">
+                          {protection}
+                        </li>
+                      ))}
                     </ul>
                   </dd>
                 </div>
@@ -267,9 +447,11 @@ sequiturque fuit constituunt frondescere spumantiaque.`
                   <dt className="text-sm font-medium leading-6 text-gray-900">Others</dt>
                   <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                     <ul>
-                      <li>A</li>
-                      <li className="mt-1">B</li>
-                      <li className="mt-1">C</li>
+                      {display?.others.map((other, index) => (
+                        <li key={"display-other-" + index} className="mt-1">
+                          {other}
+                        </li>
+                      ))}
                     </ul>
                   </dd>
                 </div>
@@ -279,77 +461,86 @@ sequiturque fuit constituunt frondescere spumantiaque.`
             <dl className="divide-y divide-gray-100">
               <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Name</dt>
-                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">name</dd>
+                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{cartridge?.name}</dd>
               </div>
               <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Description</dt>
-                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">description</dd>
+                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{cartridge?.description}</dd>
               </div>
               <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Materials</dt>
                 <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                   <ul>
-                    <li>A</li>
-                    <li className="mt-1">B</li>
-                    <li className="mt-1">C</li>
+                    {cartridge?.materials ??
+                      cartridge?.materials.map((material: string, index: number) => (
+                        <li key={"cartridge-material-" + index} className="mt-1">
+                          {material}
+                        </li>
+                      ))}
                   </ul>
                 </dd>
               </div>
               <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Colors</dt>
                 <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                  <Badge className="mr-1" color="red" variant="dot">
-                    Red
-                  </Badge>
-                  <Badge className="mr-1" color="green" variant="dot">
-                    Green
-                  </Badge>
-                  <Badge className="mr-1" color="blue" variant="dot">
-                    Blue
-                  </Badge>
+                  {cartridge?.colors.map((color, index) => (
+                    <Badge key={"cartridge-color-" + index} className="mr-1" color={color} variant="dot">
+                      {snakeCase(color)}
+                    </Badge>
+                  ))}
                 </dd>
               </div>
               <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Volume</dt>
-                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">value unit</dd>
+                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                  {cartridge?.volume.value + " " + cartridge?.volume.unit}
+                </dd>
               </div>
               <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Weight</dt>
-                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">value unit</dd>
+                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                  {cartridge?.weight.value + " " + cartridge?.weight.unit}
+                </dd>
               </div>
               <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Dimension</dt>
-                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">X x Y x Z unit</dd>
+                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
+                  {cartridge?.dimension.x + " x " + cartridge?.dimension.y + " x " + cartridge?.dimension.z + " mm"}
+                </dd>
               </div>
               <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Protections</dt>
                 <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                   <ul>
-                    <li>A</li>
-                    <li className="mt-1">B</li>
-                    <li className="mt-1">C</li>
+                    {cartridge?.protections.map((protection, index) => (
+                      <li key={"cartridge-protection-" + index} className="mt-1">
+                        {protection}
+                      </li>
+                    ))}
                   </ul>
                 </dd>
               </div>
               <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Mouth Piece</dt>
-                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">mouth_piece</dd>
+                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{cartridge?.mouthpiece}</dd>
               </div>
               <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Coil</dt>
-                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">mouth_piece</dd>
+                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{cartridge?.coil}</dd>
               </div>
               <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Atomizer</dt>
-                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">atomizer</dd>
+                <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">{cartridge?.atomizer}</dd>
               </div>
               <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                 <dt className="text-sm font-medium leading-6 text-gray-900">Connections</dt>
                 <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                   <ul>
-                    <li>A</li>
-                    <li className="mt-1">B</li>
-                    <li className="mt-1">C</li>
+                    {cartridge?.connections.map((connection, index) => (
+                      <li key={"cartridge-connection-" + index} className="mt-1">
+                        {connection}
+                      </li>
+                    ))}
                   </ul>
                 </dd>
               </div>
