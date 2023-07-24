@@ -9,7 +9,16 @@ export type ResponseBase =
   | Body
   | Vape
   | Battery
+  | Pagination
   | ErrorResponse
+
+export type Pagination = {
+  limit: number
+  page: number
+  sort: string
+  total_rows: number
+  total_pages: number
+}
 
 export type ErrorResponse = {
   error: string
@@ -219,19 +228,12 @@ export type VapeByBrandNameResponse = {
   id: number
   slug: string
   name: string
-  model: string
   brand: string
-  type: string
   images: string[]
-  known_as: string
-  description: string
   basic_infos: {
     label: string
     type: string
   }[]
-  created_by: number
-  created_at: string
-  updated_at: string
 }
 
 export type Volume = {

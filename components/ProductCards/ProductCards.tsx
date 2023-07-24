@@ -1,12 +1,10 @@
 import { IconAspectRatio, IconBattery4, IconCpu } from "@tabler/icons-react"
 import { capitalize } from "lodash"
 import Image from "next/image"
-import React, { useState } from "react"
+import React from "react"
 import { VapeByBrandNameResponse } from "../../types/app-types"
 
-export function ProductCards({ name, known_as, brand, type, images, basic_infos }: VapeByBrandNameResponse) {
-  const [vapeID, setVapeID] = useState(0)
-
+export function ProductCards({ slug, name, brand, images, basic_infos }: VapeByBrandNameResponse) {
   const infos = basic_infos.map((info) => {
     const type = info.type
     switch (type) {
@@ -65,7 +63,7 @@ export function ProductCards({ name, known_as, brand, type, images, basic_infos 
   })
 
   return (
-    <a href="#" className="block rounded-lg p-4 shadow-sm shadow-indigo-100">
+    <a href={`/vapes/detail/${slug}`} className="block rounded-lg p-4 shadow-sm shadow-indigo-100">
       <Image
         alt="Home"
         src={
@@ -81,8 +79,8 @@ export function ProductCards({ name, known_as, brand, type, images, basic_infos 
       <div className="mt-2">
         <dl>
           <div>
-            <dt className="sr-only">Known As</dt>
-            <dd className="text-sm text-gray-500">{known_as}</dd>
+            <dt className="sr-only">Brand</dt>
+            <dd className="text-sm text-gray-500">{brand}</dd>
           </div>
 
           <div>
